@@ -20,18 +20,24 @@ extension BackgroundIntent: ForegroundContinuableIntent {}
 public struct BackgroundIntent: AppIntent {
    static public var title: LocalizedStringResource = "HomeWidget Background Intent"
 
-   @Parameter(title: "Widget URI")
-   var url: URL?
 
+    @Parameter(title: "Method")
+    var method: String
 
-   public init() {}
+    public init() {
+        method = "increment"
+      }
 
-   public init(url: URL?) {
-      self.url = url
-   }
+      public init(method: String) {
+        self.method = method
+      }
+
 
    public func perform() async throws -> some IntentResult {
-      await HomeWidgetBackgroundWorker.run(url: url, appGroup: "group.lenghomewidget")
+      await HomeWidgetBackgroundWorker.run(
+        url: URL(string: "apdbankwidget://\(method)"),
+        appGroup: "group.lenghomewidget"
+      )
        return .result()
    }
 }

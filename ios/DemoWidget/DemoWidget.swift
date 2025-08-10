@@ -11,26 +11,27 @@ import SwiftUI
 // Timeline entry with date and message
 struct SimpleEntry: TimelineEntry {
     let date: Date
-    let message: String
+    let counter: Int
 }
 
 // Timeline provider that supplies entries
 struct Provider: TimelineProvider {
     func placeholder(in context: Context) -> SimpleEntry {
-        SimpleEntry(date: Date(), message: "Placeholder")
+        loadWidgetData()
     }
 
     func getSnapshot(in context: Context, completion: @escaping (SimpleEntry) -> Void) {
-        let entry = SimpleEntry(date: Date(), message: "Snapshot")
-        completion(entry)
+        completion(loadWidgetData())
     }
 
     func getTimeline(in context: Context, completion: @escaping (Timeline<SimpleEntry>) -> Void) {
-        let entries = [
-            SimpleEntry(date: Date(), message: "Hello from widget!")
-        ]
-        let timeline = Timeline(entries: entries, policy: .never)
+        let timeline = Timeline(entries: [loadWidgetData()], policy: .never)
         completion(timeline)
+    }
+    func loadWidgetData() -> SimpleEntry {
+        let userDefaults = UserDefaults(suiteName: "group.lenghomewidget")
+        let counter = userDefaults?.integer(forKey: "counter") ?? 0
+        return SimpleEntry(date: Date(), counter: counter)
     }
 }
 
@@ -41,54 +42,81 @@ struct DemoWidgetEntryView : View {
     var body: some View {
         VStack {
             
-            HStack {
-//                Button(
-//                   intent: BackgroundIntent(
-//                     url: URL(string: "apdbank://scan_qr_func"))
-//                 ) {
-//                     Text("Scan QR")
-//                 }.buttonStyle(.bordered)
-//                
-//                Button(
-//                   intent: BackgroundIntent(
-//                     url: URL(string: "apdbank://generate_qr_func"))
-//                 ) {
-//                   Text("Scan QR")
-//                 }.buttonStyle(.bordered)
+            HStack(alignment: .top) {
                 
-//                Text("Button 1")
-//                    .background(.green)
-//                    .widgetURL(URL(string: "apdbankhomewidget://message?message=button_1&homeWidget"))
-//                
-//                Text("Button 2")
-//                    .background(.green)
-//                    .widgetURL(URL(string: "apdbankhomewidget://message?message=button_2&homeWidget"))
+                VStack{
+                    Text("Background work")
+                        .font(.system(size: 14))
+                        .foregroundColor(.green)
+                    Spacer()
+                        .frame(height: 20)
+                    HStack {
+                        Button(intent: BackgroundIntent(method: "decrement")) {
+                            Image(systemName: "minus")
+                                .font(.system(size: 16))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 40)
+                                .background(Circle().fill(Color.blue))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                        Text("\(entry.counter)")
+                            .font(.system(size: 30))
+                        
+                        Button(intent: BackgroundIntent(method: "increment")) {
+                            Image(systemName: "plus")
+                                .font(.system(size: 16))
+                                .foregroundColor(.white)
+                                .frame(width: 40, height: 40)
+                                .background(Circle().fill(Color.blue))
+                        }
+                        .buttonStyle(PlainButtonStyle())
+                    }
+                }
+                Rectangle()
+                    .frame(width: 1)   // thickness of the vertical line
+                    .foregroundColor(.gray)  // line color
+                    .frame(maxHeight: .infinity)
+                    .opacity(0.4)
                 
-                Link(destination: URL(string: "apdbankhomewidget://func_show_qr?homeWidget")!) {
-                    Text("Show QR")
+                VStack(alignment: .leading) {
+                    Text("Detect widget click")
                         .font(.system(size: 14))
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.green)
-                        .cornerRadius(6)
+                        .foregroundColor(.green)
+                    Spacer()
+                        .frame(height: 20)
+                    
+                    HStack {
+                        
+                        Link(destination: URL(string: "apdbankhomewidget://func_show_qr?homeWidget")!) {
+                            Text("Show QR")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.green)
+                                .cornerRadius(6)
+                        }
+                        Link(destination: URL(string: "apdbankhomewidget://func_scan_qr?homeWidget")!) {
+                            Text("Scan QR")
+                                .font(.system(size: 14))
+                                .foregroundColor(.white)
+                                .padding(8)
+                                .background(Color.green)
+                                .cornerRadius(6)
+                        }
+                        
+                    }
+                    
+                    
                 }
-
-                Link(destination: URL(string: "apdbankhomewidget://func_scan_qr?homeWidget")!) {
-                    Text("Scan QR")
-                        .font(.system(size: 14))
-                        .foregroundColor(.white)
-                        .padding(8)
-                        .background(Color.green)
-                        .cornerRadius(6)
+                    
                 }
-            }
+                
         }
-        
         
     }
 }
 
-
+//
 struct DemoWidget: Widget {
     let kind: String = "DemoWidget"
 
@@ -109,10 +137,16 @@ struct DemoWidget: Widget {
     }
 }
 
-// Preview for Xcode canvas
-struct DemoWidget_Previews: PreviewProvider {
-    static var previews: some View {
-        DemoWidgetEntryView(entry: SimpleEntry(date: Date(), message: "Preview"))
-            .previewContext(WidgetPreviewContext(family: .systemSmall))
-    }
+//// Preview for Xcode canvas
+//struct DemoWidget_Previews: PreviewProvider {
+//    static var previews: some View {
+//        DemoWidgetEntryView(entry: SimpleEntry(date: Date(), message: "Preview"))
+//            .previewContext(WidgetPreviewContext(family: .systemSmall))
+//    }
+//}
+
+#Preview(as: .systemMedium) {
+    DemoWidget()
+} timeline: {
+   SimpleEntry(date: .now, counter: 0)
 }

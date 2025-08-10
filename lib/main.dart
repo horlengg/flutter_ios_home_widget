@@ -4,22 +4,59 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:home_widget/home_widget.dart';
 
-final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+const appGroupID = 'group.lenghomewidget';
+const _countKey = 'counter';
 
+/// Gets the currently stored Value
+Future<int> get _value async {
+  final value = await HomeWidget.getWidgetData<int>(_countKey, defaultValue: 0);
+  return value!;
+}
+
+/// Retrieves the current stored value
+/// Increments it by one
+/// Saves that new value
+/// @returns the new saved value
+Future<void> _increment() async {
+  final value = await _value;
+  await _sendAndUpdate(value + 1);
+}
+
+/// Clears the saved Counter Value
+Future<void> _decrement() async {
+  final oldValue = await _value;
+  await _sendAndUpdate(oldValue - 1);
+}
+
+/// Stores [value] in the Widget Configuration
+Future<void> _sendAndUpdate([int? value]) async {
+  await HomeWidget.saveWidgetData(_countKey, value);
+  await HomeWidget.updateWidget(
+    iOSName: 'DemoWidget',
+  );
+}
+
+@pragma("vm:entry-point")
+FutureOr<void> backgroundCallback(Uri? uri) async {
+  debugPrint('backgroundCallback() : $uri');
+   if (uri?.host == 'increment') {
+    _increment();
+  } else if (uri?.host == 'decrement') {
+    _decrement();
+  }
+}
+
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await HomeWidget.setAppGroupId('group.lenghomewidget');
+  await HomeWidget.setAppGroupId(appGroupID);
   await HomeWidget.registerInteractivityCallback(backgroundCallback);
   runApp(const MyApp());
 }
 
-@pragma("vm:entry-point")
-FutureOr<void> backgroundCallback(Uri? data) async {
-  // do something with data
-  print('backgroundCallback() : $data'); // Works even outside State
-   debugPrint('backgroundCallback() : $data');
-}
+
 
 class MyApp extends StatefulWidget {
   const MyApp({super.key});
