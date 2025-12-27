@@ -1,16 +1,54 @@
-# flutter_home_widget
 
-A new Flutter project.
+# Flutter iOS Home Widget Implementation
 
-## Getting Started
+This repository demonstrates how to implement an **iOS Home Screen Widget** for a **Flutter** application using **WidgetKit** and the [`home_widget`](https://pub.dev/packages/home_widget) plugin.
 
-This project is a starting point for a Flutter application.
+The goal is to share data between Flutter and a native iOS widget and display it on the iOS Home Screen.
 
-A few resources to get you started if this is your first Flutter project:
+![Widget Demo](./ios-home-widget-demo_fspmcx.gif)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+<br>
+<br>
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+![Widget Demo](./home_widget_demo.png)
+
+---
+
+## 🧱 Architecture Overview
+
+```
+Flutter App
+   │
+   │  (home_widget plugin)
+   ▼
+App Group (UserDefaults)
+   ▲
+   │
+iOS Widget Extension (WidgetKit + SwiftUI)
+```
+
+Flutter writes data to the **App Group**, and the Widget reads from the same App Group to render UI.
+
+---
+
+## Requirements
+
+* Flutter 3.x or later
+* Xcode 14+
+* iOS 14.0+
+* macOS
+* Apple Developer Account
+
+---
+
+## Setup
+For setup guide please visite this 
+[Implement iOS Home Widget](https://horleng.vercel.app/blogs/implement-an-ios-home-widget-in-flutter-app)
+
+## 🤝 Contributing
+
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+---
+
+Thanks!.
